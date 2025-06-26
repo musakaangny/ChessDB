@@ -1,0 +1,241 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block content %}
+<h2>Coach Dashboard</h2>
+
+<input type="hidden" id="team_id" value="{{ team.0 }}">
+
+<div>
+  <h3>Welcome, {{ username }}! You are coaching: {{ team.1 }}</h3>
+</div>
+
+<hr />
+
+<div>
+  <h3>Create a Match</h3>
+  <form id="create-match-form" action="{% url 'coach' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="create_match" />
+    <input type="hidden" name="team_id" value="{{ team.0 }}" />
+    <div>
+      <label for="date">Date (DD-MM-YYYY):</label>
+      <input
+        type="text"
+        id="date"
+        name="date"
+        placeholder="DD-MM-YYYY"
+        pattern="[0-3][0-9]-[0-1][0-9]-[0-9]{4}"
+        required
+      />
+    </div>
+    <div>
+      <label for="time_slot">Time Slot:</label>
+      <select id="time_slot" name="time_slot" required>
+        <option value="1">Time Slot 1</option>
+        <option value="2">Time Slot 2</option>
+        <option value="3">Time Slot 3</option>
+      </select>
+    </div>
+    <div>
+      <label for="hall_id">Hall:</label>
+      <select id="hall_id" name="hall_id" required>
+        <option value="" selected disabled>-- Select Hall --</option>
+        {% for hall in halls %}
+        <option value="{{ hall.0 }}">
+          {{ hall.1 }} ({{ hall.2 }}, Capacity: {{ hall.3 }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="table_id">Table:</label>
+      <select id="table_id" name="table_id" required disabled>
+        <option value="" selected disabled>-- Select Hall First --</option>
+      </select>
+    </div>
+    <div>
+      <label for="opponent_team_id">Opponent Team:</label>
+      <select id="opponent_team_id" name="opponent_team_id" required>
+        <option value="" selected disabled>-- Select Opponent Team --</option>
+        {% for team in opponent_teams %}
+        <option value="{{ team.0 }}">{{ team.1 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="arbiter_username">Arbiter:</label>
+      <select id="arbiter_username" name="arbiter_username" required disabled>
+        <option value="" selected disabled>
+          -- Select Date and Time First --
+        </option>
+      </select>
+    </div>
+    <div>
+      <label for="player_username">Player from My Team:</label>
+      <select id="player_username" name="player_username" required disabled>
+        <option value="" selected disabled>
+          -- Select Team and Date/Time First --
+        </option>
+      </select>
+    </div>
+    <button type="submit" id="create-match-btn">Create Match</button>
+  </form>
+  <div id="match-creation-message"></div>
+</div>
+
+<hr />
+
+<div>
+  <h3>Available Halls</h3>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Hall Name</th>
+        <th>Country</th>
+        <th>Total Table Capacity</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for hall in halls %}
+      <tr>
+        <td>{{ hall.0 }}</td>
+        <td>{{ hall.1 }}</td>
+        <td>{{ hall.2 }}</td>
+        <td>{{ hall.3 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<hr />
+
+<div>
+  <h3>My Assigned Matches</h3>
+  {% if assigned_matches %}
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Match ID</th>
+        <th>Date</th>
+        <th>Time Slot</th>
+        <th>Hall</th>
+        <th>Table</th>
+        <th>Team 1</th>
+        <th>Team 2</th>
+        <th>White Player</th>
+        <th>Arbiter</th>
+        <th>Black Player</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for match in assigned_matches %}
+      <tr>
+        <td>{{ match.0 }}</td>
+        <td>{{ match.1 }}</td>
+        <td>{{ match.2 }}</td>
+        <td>{{ match.3 }}</td>
+        <td>{{ match.4 }}</td>
+        <td>{{ match.5 }}</td>
+        <td>{{ match.6 }}</td>
+        <td>{{ match.7 }}</td>
+        <td>{{ match.9 }}</td>
+        <td>
+          {% if not match.8 %}
+          <form
+            action="{% url 'coach' %}"
+            method="post"
+            class="assign-player-form"
+          >
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="assign_player" />
+            <input type="hidden" name="match_id" value="{{ match.0 }}" />
+            <select
+              name="player_username"
+              class="player-select"
+              data-team-id="{{ match.9 }}"
+              data-date="{{ match.1 }}"
+              data-time-slot="{{ match.2 }}"
+              aria-label="Select Player"
+              required
+            >
+              <option value="" selected disabled>-- Select Player --</option>
+            </select>
+            <button type="submit" class="assign-player-btn">
+              Assign Player
+            </button>
+          </form>
+          {% else %} {{ match.8 }} {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No matches require player assignment.</p>
+  {% endif %}
+</div>
+
+<hr />
+
+<div>
+  <h3>My Created Matches</h3>
+  {% if created_matches %}
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Match ID</th>
+        <th>Date</th>
+        <th>Time Slot</th>
+        <th>Hall</th>
+        <th>Table</th>
+        <th>Team 1</th>
+        <th>Team 2</th>
+        <th>White Player</th>
+        <th>Black Player</th>
+        <th>Arbiter</th>
+        <th>Result</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for match in created_matches %}
+      <tr>
+        <td>{{ match.0 }}</td>
+        <td>{{ match.1 }}</td>
+        <td>{{ match.2 }}</td>
+        <td>{{ match.3 }}</td>
+        <td>{{ match.4 }}</td>
+        <td>{{ match.5 }}</td>
+        <td>{{ match.6 }}</td>
+        <td>{{ match.7 }}</td>
+        <td>{{ match.8 }}</td>
+        <td>{{ match.9 }}</td>
+        <td>{{ match.10|default:"Not decided" }}</td>
+        <td>
+          {% if not match.10 %}
+          <form
+            action="{% url 'coach' %}"
+            method="post"
+            class="delete-match-form"
+          >
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="delete_match" />
+            <input type="hidden" name="match_id" value="{{ match.0 }}" />
+            <button type="submit" class="delete-match-btn">Delete Match</button>
+          </form>
+          {% else %} Match Completed {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>You haven't created any matches yet.</p>
+  {% endif %}
+</div>
+
+<script src="{% static 'core/js/coach.js' %}"></script>
+
+{% endblock %}

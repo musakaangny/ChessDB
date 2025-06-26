@@ -1,0 +1,103 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<h2>Arbiter Dashboard</h2>
+
+<div>
+    <h3>My Assigned Matches</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Match ID</th>
+                <th>Date</th>
+                <th>Time Slot</th>
+                <th>Hall</th>
+                <th>Table</th>
+                <th>Team 1</th>
+                <th>Team 2</th>
+                <th>White Player</th>
+                <th>Black Player</th>
+                <th>Result</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if matches %}
+                {% for match in matches %}
+                <tr>
+                    <td>{{ match.match_id }}</td>
+                    <td>{{ match.date }}</td>
+                    <td>{{ match.time_slot }}</td>
+                    <td>{{ match.hall_name }}</td>
+                    <td>{{ match.table_id }}</td>
+                    <td>{{ match.team1_name }}</td>
+                    <td>{{ match.team2_name }}</td>
+                    <td>{{ match.white_player }}</td>
+                    <td>{{ match.black_player }}</td>
+                    <td>
+                        {% if match.result %}
+                            {{ match.result }}
+                        {% elif not match.is_future and match.result is None %}
+                            <form action="{% url 'arbiter' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="form_type" value="submit_result">
+                                <input type="hidden" name="match_id" value="{{ match.match_id }}">
+                                <select name="result" aria-label="Match Result">
+                                    <option value="white wins">White wins</option>
+                                    <option value="black wins">Black wins</option>
+                                    <option value="draw">Draw</option>
+                                </select>
+                                <button type="submit">Submit Result</button>
+                            </form>
+                        {% else %}
+                            Future Match
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if match.ratings %}
+                            {{ match.ratings }} / 10
+                        {% elif not match.is_future and match.ratings is None %}
+                            <form action="{% url 'arbiter' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="form_type" value="submit_rating">
+                                <input type="hidden" name="match_id" value="{{ match.match_id }}">
+                                <select name="rating" aria-label="Match Rating">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                </select>
+                                <button type="submit">Submit Rating</button>
+                            </form>
+                        {% elif match.is_future %}
+                            Future match
+                        {% else %}
+                            Not eligible
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="11">No matches assigned to you</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<hr>
+
+<div>
+    <h3>My Rating Statistics</h3>
+    <p>Average Match Rating: <strong>{{ average_rating|default:"N/A" }}</strong></p>
+    <p>Total Matches Rated: <strong>{{ total_rated_matches }}</strong></p>
+</div>
+
+{% endblock %}

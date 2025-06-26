@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %} {% block content %}
+<div class="container">
+  <h2>Players Dashboard</h2>
+
+  <div class="most-played-section">
+    <h3>Most Frequently Played Opponent Stats</h3>
+    {% if most_played_info and most_played_info.match_count > 0 %}
+    <div class="stats-card">
+      <p>
+        <strong>Number of Matches:</strong> {{ most_played_info.match_count }}
+      </p>
+      {% if most_played_info.is_tie %}
+      <p>
+        <strong>Average ELO Rating of Tied Most Frequent Opponents:</strong>
+        {% if most_played_info.elo_rating %} {{ most_played_info.elo_rating }}
+        {% else %} Not available {% endif %}
+      </p>
+      {% else %}
+      <p>
+        <strong>ELO Rating of Most Frequent Opponent:</strong>
+        {% if most_played_info.elo_rating %} {{ most_played_info.elo_rating }}
+        {% else %} Not available {% endif %}
+      </p>
+      {% endif %}
+    </div>
+    {% else %}
+    <p>No match statistics available yet.</p>
+    {% endif %}
+  </div>
+
+  <h3>Players You Have Played Against</h3>
+  {% if players %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Surname</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for player in players %}
+      <tr>
+        <td>{{ player.0 }}</td>
+        <td>{{ player.1 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>You haven't played any matches yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

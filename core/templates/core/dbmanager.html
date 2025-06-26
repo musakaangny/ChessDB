@@ -1,0 +1,163 @@
+{% extends "core/base.html" %} {% block content %}
+<h2>Database Manager Dashboard</h2>
+
+<div>
+  <h3>User Management</h3>
+  <h4>Add New Player</h4>
+  <form action="{% url 'dbmanager' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="add_user_player" />
+    <label for="player_username">Username:</label>
+    <input type="text" id="player_username" name="username" required /><br />
+    <label for="player_password">Password:</label>
+    <input
+      type="password"
+      id="player_password"
+      name="password"
+      required
+    /><br />
+    <label for="player_name">Name:</label>
+    <input type="text" id="player_name" name="name" required /><br />
+    <label for="player_surname">Surname:</label>
+    <input type="text" id="player_surname" name="surname" required /><br />
+    <label for="player_nationality">Nationality:</label>
+    <input
+      type="text"
+      id="player_nationality"
+      name="nationality"
+      required
+    /><br />
+    <label for="player_date_of_birth">Birth Date (DD-MM-YYYY):</label>
+    <input
+      type="text"
+      id="player_date_of_birth"
+      name="date_of_birth"
+      placeholder="DD-MM-YYYY"
+      pattern="[0-3][0-9]-[0-1][0-9]-[0-9]{4}"
+      required
+    /><br />
+    <label for="player_fide_id">FIDE ID:</label>
+    <input type="text" id="player_fide_id" name="fide_id" /><br />
+    <label for="player_elo">ELO Rating:</label>
+    <input type="number" id="player_elo" name="elo_rating" required /><br />
+    <label for="player_title">Title:</label>
+    <select id="player_title" name="title">
+      <option value="">None</option>
+      <option value="Grandmaster">Grandmaster (GM)</option>
+      <option value="International Master">International Master (IM)</option>
+      <option value="FIDE Master">FIDE Master (FM)</option>
+      <option value="Candidate Master">Candidate Master (CM)</option>
+      <option value="National Master">National Master (NM)</option></select
+    ><br />
+    <button type="submit">Add Player</button>
+  </form>
+  <br />
+  <h4>Add New Coach</h4>
+  <form action="{% url 'dbmanager' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="add_user_coach" />
+    <label for="coach_username">Username:</label>
+    <input type="text" id="coach_username" name="username" required /><br />
+    <label for="coach_password">Password:</label>
+    <input type="password" id="coach_password" name="password" required /><br />
+    <label for="coach_name">Name:</label>
+    <input type="text" id="coach_name" name="name" required /><br />
+    <label for="coach_surname">Surname:</label>
+    <input type="text" id="coach_surname" name="surname" required /><br />
+    <label for="coach_nationality">Nationality:</label>
+    <input
+      type="text"
+      id="coach_nationality"
+      name="nationality"
+      required
+    /><br />
+    <label for="coach_team">Team ID:</label>
+    <input type="text" id="coach_team" name="coach_team" required /><br />
+    <label for="coach_contract_start_date"
+      >Contract Start Date (DD-MM-YYYY):</label
+    >
+    <input
+      type="text"
+      id="coach_contract_start_date"
+      name="contract_start_date"
+      placeholder="DD-MM-YYYY"
+      pattern="[0-3][0-9]-[0-1][0-9]-[0-9]{4}"
+      required
+    /><br />
+    <label for="coach_contract_finish_date"
+      >Contract Finish Date (DD-MM-YYYY):</label
+    >
+    <input
+      type="text"
+      id="coach_contract_finish_date"
+      name="contract_finish_date"
+      placeholder="DD-MM-YYYY"
+      pattern="[0-3][0-9]-[0-1][0-9]-[0-9]{4}"
+      required
+    /><br />
+
+    <button type="submit">Add Coach</button>
+  </form>
+  <br />
+  <h4>Add New Arbiter</h4>
+  <form action="{% url 'dbmanager' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="add_user_arbiter" />
+    <label for="arbiter_username">Username:</label>
+    <input type="text" id="arbiter_username" name="username" required /><br />
+    <label for="arbiter_password">Password:</label>
+    <input
+      type="password"
+      id="arbiter_password"
+      name="password"
+      required
+    /><br />
+    <label for="arbiter_name">Name:</label>
+    <input type="text" id="arbiter_name" name="name" required /><br />
+    <label for="arbiter_surname">Surname:</label>
+    <input type="text" id="arbiter_surname" name="surname" required /><br />
+    <label for="arbiter_nationality">Nationality:</label>
+    <input
+      type="text"
+      id="arbiter_nationality"
+      name="nationality"
+      required
+    /><br />
+    <label for="arbiter_experience_level">Experience Level:</label>
+    <select id="arbiter_experience_level" name="experience_level" required>
+      <option value="Beginner">Beginner</option>
+      <option value="Intermediate">Intermediate</option>
+      <option value="Advanced">Advanced</option>
+      <option value="Expert">Expert</option></select
+    ><br />
+    <button type="submit">Add Arbiter</button>
+  </form>
+</div>
+
+<hr />
+
+<div>
+  <h3>Hall Management</h3>
+  <h4>Rename Hall</h4>
+  <form action="{% url 'dbmanager' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="rename_hall" />
+    <label for="hall_id">Select Hall:</label>
+    <select id="hall_id" name="hall_id" required>
+      <option value="" disabled selected>-- Select a Hall --</option>
+      {% if halls %} {% for hall in halls %}
+      <option value="{{ hall.0 }}">{{ hall.1 }}</option>
+      {% endfor %} {% else %}
+      <option value="" disabled>No halls available</option>
+      {% endif %}</select
+    ><br />
+    <label for="new_hall_name">New Hall Name:</label>
+    <input type="text" id="new_hall_name" name="new_name" required /><br />
+    <button type="submit">Rename Hall</button>
+  </form>
+</div>
+
+<br />
+<a href="{% url 'login' %}"><button>Back to Login</button></a>
+
+{% endblock %}

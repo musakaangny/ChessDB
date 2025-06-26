@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Management System</title>
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+</head>
+<body>
+    <div id="fixed-messages">
+        {% if message %}
+            <p class="message">{{ message }}</p>
+        {% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>    <header>
+        <div class="header-container">
+            <div class="header-login-link">
+                {% if request.COOKIES.username %}
+                    <a href="{% url 'logout' %}">Logout ({{ request.COOKIES.username }})</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Back to Login Page</a>
+                {% endif %}
+            </div>
+            <div class="header-title">
+                <h1>Chess Management System</h1>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}
+
+        {% endblock %}
+    </main>    <footer>
+        <p>&copy; 2025 Chess Management System</p>
+    </footer>
+
+    <script src="{% static 'core/js/messages.js' %}"></script>
+</body>
+</html>
